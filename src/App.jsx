@@ -2,50 +2,50 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [file, setFile] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleFileUpload = (e) => {
-    setFile(e.target.files[0]);
-  };
+  // ضع رابط Render هنا
+  const API_URL = "https://YOUR_RENDER_URL_HERE.onrender.com"; 
 
   const askAI = async () => {
     if (!question) return;
     setLoading(true);
-    setTimeout(() => {
-      setAnswer("هذه إجابة تجريبية. سيتم ربط الذكاء الاصطناعي قريباً!");
-      setLoading(false);
-    }, 1500);
+    try {
+      const response = await fetch(`${API_URL}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            question: question,
+            data_summary: "بيانات تجريبية: المنتج A مبيعات 1000، المنتج B مبيعات 500" 
+        })
+      });
+      const data = await response.json();
+      setAnswer(data.answer || data.detail);
+    } catch (error) {
+      setAnswer("حدث خطأ في الاتصال بالخادم. تأكد من تشغيل API.");
+    }
+    setLoading(false);
   };
 
   return (
     <div className="app-container">
       <header>
         <h1>💼 Pro Data Analyzer</h1>
-        <p>منصة تحليل البيانات الذكية</p>
+        <p>مدعوم بالذكاء الاصطناعي</p>
       </header>
-
       <main>
-        <section className="upload-section">
-          <h2>1. ارفع ملفك</h2>
-          <input type="file" onChange={handleFileUpload} accept=".csv, .xlsx" />
-          {file && <p>الملف المختار: {file.name}</p>}
-        </section>
-
         <section className="chat-section">
-          <h2>2. اسأل الذكاء الاصطناعي</h2>
+          <h2>اسأل بياناتك</h2>
           <input 
             type="text" 
-            placeholder="اسأل عن بياناتك..." 
+            placeholder="مثال: ما هو أفضل منتج؟" 
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
           <button onClick={askAI} disabled={loading}>
             {loading ? "جاري التفكير..." : "إرسال"}
           </button>
-          
           {answer && (
             <div className="answer-box">
               <strong>الإجابة:</strong>
